@@ -56,11 +56,23 @@
 
 	exports.decorateTerms = decorateTerms;
 
+	var _fs = __webpack_require__(4);
+
+	var _fs2 = _interopRequireDefault(_fs);
+
 	var _reactDropzone = __webpack_require__(1);
 
 	var _reactDropzone2 = _interopRequireDefault(_reactDropzone);
 
 	var _glamor = __webpack_require__(2);
+
+	var _request = __webpack_require__(3);
+
+	var _request2 = _interopRequireDefault(_request);
+
+	var _Copy = __webpack_require__(6);
+
+	var _Copy2 = _interopRequireDefault(_Copy);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -70,11 +82,19 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /*eslint no-console: ["error", { allow: ["warn", "error", "log"] }] */
 
+	/**
+	 * Hyper File.io
+	 */
+
 	// Import third party modules
 
 
+	// Import own modules
+
+
 	function decorateTerms(Terms, _ref) {
-	  var React = _ref.React;
+	  var React = _ref.React,
+	      notify = _ref.notify;
 	  var Component = React.Component;
 
 
@@ -94,10 +114,12 @@
 	      var _this = _possibleConstructorReturn(this, (_class.__proto__ || Object.getPrototypeOf(_class)).call(this));
 
 	      _this.onFileDrop = _this.onFileDrop.bind(_this);
+	      _this.handleError = _this.handleError.bind(_this);
+	      _this.sendFile = _this.sendFile.bind(_this);
 
 	      _this.state = {
 	        message: 'Drop files here',
-	        files: []
+	        files: ''
 	      };
 	      return _this;
 	    }
@@ -105,10 +127,52 @@
 	    _createClass(_class, [{
 	      key: 'onFileDrop',
 	      value: function onFileDrop(acceptedFiles) {
+	        var _this2 = this;
+
 	        this.setState({
 	          message: 'Uploading...',
 	          files: acceptedFiles[0]
+	        }, function () {
+	          _this2.sendFile();
 	        });
+	      }
+	    }, {
+	      key: 'handleError',
+	      value: function handleError(code) {
+	        switch (code) {
+	          case 'ENOENT':
+	            notify('Error n\xBA: ' + code, 'No such file or directory');
+	            break;
+	          case 'EISDIR':
+	            notify('Error n\xBA: ' + code, 'Illegal operation on a directory');
+	            break;
+	          default:
+	            notify('Some error occurred, try again.');
+	        }
+	      }
+	    }, {
+	      key: 'sendFile',
+	      value: function sendFile() {
+	        var _this3 = this;
+
+	        var req = _request2.default.post('https://file.io', function (error, response, body) {
+	          if (error) {
+	            _this3.handleError(error);
+	          } else {
+	            var responseBody = JSON.parse(body);
+
+	            if (responseBody.success) {
+	              notify('Success upload', 'URL ' + responseBody.link + ' copied to clipboard');
+	              (0, _Copy2.default)(responseBody.link);
+	              _this3.setState({
+	                message: 'Drop files here'
+	              });
+	            }
+	          }
+	        });
+	        var form = req.form();
+
+	        form.append('file', _fs2.default.createReadStream(this.state.files.path));
 	      }
 	    }, {
 	      key: 'render',
@@ -162,6 +226,47 @@
 /***/ function(module, exports) {
 
 	module.exports = require("glamor");
+
+/***/ },
+/* 3 */
+/***/ function(module, exports) {
+
+	module.exports = require("request");
+
+/***/ },
+/* 4 */
+/***/ function(module, exports) {
+
+	module.exports = require("fs");
+
+/***/ },
+/* 5 */
+/***/ function(module, exports) {
+
+	module.exports = require("child_process");
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _child_process = __webpack_require__(5);
+
+	var copy = (0, _child_process.spawn)('pbcopy'); /**
+	                                                 * Copy to clipboard
+	                                                 */
+
+	function Copy(data) {
+	  copy.stdin.write(data);
+	  copy.stdin.end();
+	}
+
+	exports.default = Copy;
 
 /***/ }
 /******/ ])));
