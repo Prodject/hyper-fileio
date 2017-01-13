@@ -32,5 +32,9 @@
     "webpack": "^1.13.1",
     "webpack-node-externals": "^1.3.3"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "glamor": "^2.20.20",
+    "react-dropzone": "^3.9.0"
+  }
 }
