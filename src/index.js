@@ -2,30 +2,25 @@
  * Hyper File.io
  */
 
-
 import fs from 'fs';
 
 // Import third party modules
 import Dropzone from 'react-dropzone';
 import { css } from 'glamor';
 import Request from 'request';
+import ncp from 'copy-paste';
 
-// Import own modules
-import Copy from './utils/Copy'
-
-export function decorateTerms(Terms, { React, notify }) {
-  const { Component } = React;
-
-  return class extends Component {
+export function decorateTerm(Term, { React, notify }) {
+  return class extends React.Component {
     static displayName() {
       return 'Hyper File.io'
     }
 
     constructor() {
-      super()
-      this.onFileDrop = this.onFileDrop.bind(this)
-      this.handleError = this.handleError.bind(this)
-      this.sendFile = this.sendFile.bind(this)
+      super();
+      this.onFileDrop = this.onFileDrop.bind(this);
+      this.handleError = this.handleError.bind(this);
+      this.sendFile = this.sendFile.bind(this);
 
       this.state = {
         message: 'Drop files here',
@@ -38,7 +33,7 @@ export function decorateTerms(Terms, { React, notify }) {
         message: 'Uploading...',
         files: acceptedFiles[0]
       }, () => {
-        this.sendFile()
+        this.sendFile();
       });
     }
 
@@ -64,20 +59,20 @@ export function decorateTerms(Terms, { React, notify }) {
 
           if (responseBody.success) {
             notify('Success upload', `URL ${responseBody.link} copied to clipboard`)
-            Copy(responseBody.link)
+            ncp.copy(responseBody.link)
             this.setState({
               message: 'Drop files here'
             })
           }
         }
       })
-      const form = req.form()
+      const form = req.form();
 
-      form.append('file', fs.createReadStream(this.state.files.path))
+      form.append('file', fs.createReadStream(this.state.files.path));
     }
 
     render() {
-      return <Terms {...this.props} customChildren={(
+      return <Term {...this.props} customChildren={(
         <div className="hyper-fileio">
           <Dropzone
             className={`${box}`}
@@ -94,7 +89,7 @@ export function decorateTerms(Terms, { React, notify }) {
 
 
 const box = css({
-  bottom: '0',
+  bottom: '20px',
   border: '2px dashed #ffffff',
   borderRadius: '3px',
   color: '#ffffff',
@@ -109,4 +104,4 @@ const box = css({
   ':hover': {
     opacity: 1
   }
-})
+});
