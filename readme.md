@@ -2,7 +2,7 @@
 
 Drag and drop files on Hyper and share
 
-![getme-ip](./gif/hyper-fileio.gif)
+![hyper-fileio](./gif/hyper-fileio.gif)
 
 ### Installation
 
