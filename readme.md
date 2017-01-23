@@ -1,6 +1,6 @@
 # Hyper File.io
 
-`hyper-fileio` provides a way to instantly upload files to ![File.io](https:www.file.io) directly from Hyper.
+`hyper-fileio` provides a way to instantly upload files to ![File.io](https://www.file.io) directly from Hyper.
 
 ![hyper-fileio](https://raw.githubusercontent.com/psicotropicos/hyper-fileio/master/gif/hyper-fileio.gif)
 
