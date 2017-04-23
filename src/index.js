@@ -8,7 +8,7 @@ import fs from 'fs';
 import Dropzone from 'react-dropzone';
 import { css } from 'glamor';
 import Request from 'request';
-import ncp from 'copy-paste';
+import clipboardy from 'clipboardy';
 
 export function decorateTerm(Term, { React, notify }) {
   return class extends React.Component {
@@ -61,7 +61,7 @@ export function decorateTerm(Term, { React, notify }) {
 
           if (responseBody.success) {
             notify('Success upload', `URL ${responseBody.link} copied to clipboard`)
-            ncp.copy(responseBody.link)
+            clipboardy.writeSync(responseBody.link)
             this.setState({
               message: 'Drop files here'
             })

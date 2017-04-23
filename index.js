@@ -70,9 +70,9 @@
 
 	var _request2 = _interopRequireDefault(_request);
 
-	var _copyPaste = __webpack_require__(5);
+	var _clipboardy = __webpack_require__(5);
 
-	var _copyPaste2 = _interopRequireDefault(_copyPaste);
+	var _clipboardy2 = _interopRequireDefault(_clipboardy);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -157,7 +157,7 @@
 
 	            if (responseBody.success) {
 	              notify('Success upload', 'URL ' + responseBody.link + ' copied to clipboard');
-	              _copyPaste2.default.copy(responseBody.link);
+	              _clipboardy2.default.writeSync(responseBody.link);
 	              _this3.setState({
 	                message: 'Drop files here'
 	              });
@@ -237,7 +237,7 @@
 /* 5 */
 /***/ function(module, exports) {
 
-	module.exports = require("copy-paste");
+	module.exports = require("clipboardy");
 
 /***/ }
 /******/ ])));
