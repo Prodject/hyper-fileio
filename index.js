@@ -106,14 +106,15 @@
 
 	      var _this = _possibleConstructorReturn(this, (_class.__proto__ || Object.getPrototypeOf(_class)).call(this));
 
-	      _this.onFileDrop = _this.onFileDrop.bind(_this);
-	      _this.handleError = _this.handleError.bind(_this);
-	      _this.sendFile = _this.sendFile.bind(_this);
-
 	      _this.state = {
 	        message: 'Drop files here',
 	        files: ''
 	      };
+
+	      // Methods
+	      _this.onFileDrop = _this.onFileDrop.bind(_this);
+	      _this.handleError = _this.handleError.bind(_this);
+	      _this.sendFile = _this.sendFile.bind(_this);
 	      return _this;
 	    }
 

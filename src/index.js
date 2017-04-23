@@ -18,14 +18,16 @@ export function decorateTerm(Term, { React, notify }) {
 
     constructor() {
       super();
-      this.onFileDrop = this.onFileDrop.bind(this);
-      this.handleError = this.handleError.bind(this);
-      this.sendFile = this.sendFile.bind(this);
 
       this.state = {
         message: 'Drop files here',
         files: ''
       }
+
+      // Methods
+      this.onFileDrop = this.onFileDrop.bind(this);
+      this.handleError = this.handleError.bind(this);
+      this.sendFile = this.sendFile.bind(this);
     }
 
     onFileDrop(acceptedFiles) {
