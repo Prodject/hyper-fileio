@@ -1,14 +1,5 @@
-/**
- * Hyper File.io
- */
-
-import fs from 'fs';
-
 // Import third party modules
-import Dropzone from 'react-dropzone';
-import { css } from 'glamor';
-import Request from 'request';
-import clipboardy from 'clipboardy';
+const clipboardy = require('clipboardy');
 
 export function decorateTerm(Term, { React, notify }) {
   return class extends React.Component {
@@ -16,94 +7,95 @@ export function decorateTerm(Term, { React, notify }) {
       return 'Hyper File.io'
     }
 
-    constructor() {
-      super();
+    constructor(props) {
+      super(props);
 
       this.state = {
         message: 'Drop files here',
-        files: ''
+        link: '',
       }
 
-      // Methods
-      this.onFileDrop = this.onFileDrop.bind(this);
-      this.handleError = this.handleError.bind(this);
-      this.sendFile = this.sendFile.bind(this);
+      this._processData = this._processData.bind(this);
+      this._uploadFile = this._uploadFile.bind(this);
+      this._onSuccess = this._onSuccess.bind(this);
+      this._onError = this._onError.bind(this);
     }
 
-    onFileDrop(acceptedFiles) {
+    _processData(files) {
+      const data = new FormData();
+      data.append('file', files[0]);
+
       this.setState({
         message: 'Uploading...',
-        files: acceptedFiles[0]
-      }, () => {
-        this.sendFile();
+      });
+
+      this._uploadFile(data);
+    }
+
+    _uploadFile(data) {
+      fetch('https://file.io', {
+        method: 'POST',
+        body: data,
+      })
+      .then(response => response.json())
+      .then(data => this._onSuccess(data))
+      .then(() => this.setState({ message: 'Drop files here' }));
+    }
+
+    _onSuccess(data) {
+      const { link } = data;
+
+      this.setState({ link }, () => {
+        clipboardy.writeSync(this.state.link);
+        notify('🔗 Link copied to clipboard');
       });
     }
 
-    handleError(code) {
-      switch (code) {
-      case ('ENOENT'):
-        notify(`Error nº: ${code}`, 'No such file or directory');
-        break;
-      case ('EISDIR'):
-        notify(`Error nº: ${code}`, 'Illegal operation on a directory');
-        break;
-      default:
-        notify('Some error occurred, try again.');
-      }
-    }
-
-    sendFile() {
-      const req = Request.post('https://file.io', (error, response, body) => {
-        if (error) {
-          this.handleError(error)
-        } else {
-          const responseBody = JSON.parse(body)
-
-          if (responseBody.success) {
-            notify('Success upload', `URL ${responseBody.link} copied to clipboard`)
-            clipboardy.writeSync(responseBody.link)
-            this.setState({
-              message: 'Drop files here'
-            })
-          }
-        }
-      })
-      const form = req.form();
-
-      form.append('file', fs.createReadStream(this.state.files.path));
+    _onError() {
+      notify('😧 Something went wrong');
     }
 
     render() {
-      return <Term {...this.props} customChildren={(
-        <div className="hyper-fileio">
-          <Dropzone
-            className={`${box}`}
-            multiple={false}
-            disableClick={true}
-            onDrop={this.onFileDrop}>
-            {this.state.message}
-          </Dropzone>
-        </div>
-      )} />
+      return (
+        <Term
+          {...this.props}
+          customChildren={(
+            <div>
+              <label style={style.container}>
+                { this.state.message }
+                <input
+                  type='file'
+                  id='file'
+                  name='file'
+                  style={style.input}
+                  onChange={e => this._processData(e.target.files)}
+                />
+              </label>
+            </div>
+          )}
+        />
+      )
     }
   }
 }
 
-
-const box = css({
-  bottom: '20px',
-  border: '2px dashed #ffffff',
-  borderRadius: '3px',
-  color: '#ffffff',
-  fontFamily: 'sans-serif',
-  marginBottom: '10px',
-  marginRight: '10px',
-  opacity: '0.2',
-  padding: '10px',
-  position: 'absolute',
-  right: '0',
-  transition: '.2s all',
-  ':hover': {
-    opacity: 1
+const style = {
+  container: {
+    border: '1px dashed #fff',
+    borderRadius: '4px',
+    position: 'absolute',
+    right: '20px',
+    bottom: '20px',
+    padding: '8px',
+  },
+  input: {
+    opacity: 0,
+    appearance: 'none',
+    position: 'absolute',
+    'z-index': 1,
+    width: '100%',
+  },
+  label: {
+    position: 'relative',
   }
-});
+};

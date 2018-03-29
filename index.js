@@ -42,7 +42,7 @@
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
@@ -56,36 +56,14 @@
 
 	exports.decorateTerm = decorateTerm;
 
-	var _fs = __webpack_require__(1);
-
-	var _fs2 = _interopRequireDefault(_fs);
-
-	var _reactDropzone = __webpack_require__(2);
-
-	var _reactDropzone2 = _interopRequireDefault(_reactDropzone);
-
-	var _glamor = __webpack_require__(3);
-
-	var _request = __webpack_require__(4);
-
-	var _request2 = _interopRequireDefault(_request);
-
-	var _clipboardy = __webpack_require__(5);
-
-	var _clipboardy2 = _interopRequireDefault(_clipboardy);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /**
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Hyper File.io
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 	// Import third party modules
-
+	var clipboardy = __webpack_require__(1);
 
 	function decorateTerm(Term, _ref) {
 	  var React = _ref.React,
@@ -101,89 +79,94 @@
 	      }
 	    }]);
 
-	    function _class() {
+	    function _class(props) {
 	      _classCallCheck(this, _class);
 
-	      var _this = _possibleConstructorReturn(this, (_class.__proto__ || Object.getPrototypeOf(_class)).call(this));
+	      var _this = _possibleConstructorReturn(this, (_class.__proto__ || Object.getPrototypeOf(_class)).call(this, props));
 
 	      _this.state = {
 	        message: 'Drop files here',
-	        files: ''
+	        link: ''
 	      };
 
-	      // Methods
-	      _this.onFileDrop = _this.onFileDrop.bind(_this);
-	      _this.handleError = _this.handleError.bind(_this);
-	      _this.sendFile = _this.sendFile.bind(_this);
+	      _this._processData = _this._processData.bind(_this);
+	      _this._uploadFile = _this._uploadFile.bind(_this);
+	      _this._onSuccess = _this._onSuccess.bind(_this);
+	      _this._onError = _this._onError.bind(_this);
 	      return _this;
 	    }
 
 	    _createClass(_class, [{
-	      key: 'onFileDrop',
-	      value: function onFileDrop(acceptedFiles) {
-	        var _this2 = this;
+	      key: '_processData',
+	      value: function _processData(files) {
+	        var data = new FormData();
+	        data.append('file', files[0]);
 
 	        this.setState({
-	          message: 'Uploading...',
-	          files: acceptedFiles[0]
-	        }, function () {
-	          _this2.sendFile();
+	          message: 'Uploading...'
+	        });
+
+	        this._uploadFile(data);
+	      }
+	    }, {
+	      key: '_uploadFile',
+	      value: function _uploadFile(data) {
+	        var _this2 = this;
+
+	        fetch('https://file.io', {
+	          method: 'POST',
+	          body: data
+	        }).then(function (response) {
+	          return response.json();
+	        }).then(function (data) {
+	          return _this2._onSuccess(data);
+	        }).then(function () {
+	          return _this2.setState({ message: 'Drop files here' });
 	        });
 	      }
 	    }, {
-	      key: 'handleError',
-	      value: function handleError(code) {
-	        switch (code) {
-	          case 'ENOENT':
-	            notify('Error n\xBA: ' + code, 'No such file or directory');
-	            break;
-	          case 'EISDIR':
-	            notify('Error n\xBA: ' + code, 'Illegal operation on a directory');
-	            break;
-	          default:
-	            notify('Some error occurred, try again.');
-	        }
-	      }
-	    }, {
-	      key: 'sendFile',
-	      value: function sendFile() {
+	      key: '_onSuccess',
+	      value: function _onSuccess(data) {
 	        var _this3 = this;
 
-	        var req = _request2.default.post('https://file.io', function (error, response, body) {
-	          if (error) {
-	            _this3.handleError(error);
-	          } else {
-	            var responseBody = JSON.parse(body);
+	        var link = data.link;
 
-	            if (responseBody.success) {
-	              notify('Success upload', 'URL ' + responseBody.link + ' copied to clipboard');
-	              _clipboardy2.default.writeSync(responseBody.link);
-	              _this3.setState({
-	                message: 'Drop files here'
-	              });
-	            }
-	          }
+
+	        this.setState({ link: link }, function () {
+	          clipboardy.writeSync(_this3.state.link);
+	          notify('🔗 Link copied to clipboard');
 	        });
-	        var form = req.form();
-
-	        form.append('file', _fs2.default.createReadStream(this.state.files.path));
+	      }
+	    }, {
+	      key: '_onError',
+	      value: function _onError() {
+	        notify('😧 Something went wrong');
 	      }
 	    }, {
 	      key: 'render',
 	      value: function render() {
-	        return React.createElement(Term, _extends({}, this.props, { customChildren: React.createElement(
+	        var _this4 = this;
+
+	        return React.createElement(Term, _extends({}, this.props, {
+	          customChildren: React.createElement(
 	            'div',
-	            { className: 'hyper-fileio' },
+	            null,
 	            React.createElement(
-	              _reactDropzone2.default,
-	              {
-	                className: '' + box,
-	                multiple: false,
-	                disableClick: true,
-	                onDrop: this.onFileDrop },
-	              this.state.message
+	              'label',
+	              { style: style.container },
+	              this.state.message,
+	              React.createElement('input', {
+	                type: 'file',
+	                id: 'file',
+	                name: 'file',
+	                style: style.input,
+	                onChange: function onChange(e) {
+	                  return _this4._processData(e.target.files);
+	                }
+	              })
 	            )
-	          ) }));
+	          )
+	        }));
 	      }
 	    }]);
 
@@ -191,53 +174,32 @@
 	  }(React.Component);
 	}
 
-	var box = (0, _glamor.css)({
-	  bottom: '20px',
-	  border: '2px dashed #ffffff',
-	  borderRadius: '3px',
-	  color: '#ffffff',
-	  fontFamily: 'sans-serif',
-	  marginBottom: '10px',
-	  marginRight: '10px',
-	  opacity: '0.2',
-	  padding: '10px',
-	  position: 'absolute',
-	  right: '0',
-	  transition: '.2s all',
-	  ':hover': {
-	    opacity: 1
+	var style = {
+	  container: {
+	    border: '1px dashed #fff',
+	    borderRadius: '4px',
+	    position: 'absolute',
+	    right: '20px',
+	    bottom: '20px',
+	    padding: '8px'
+	  },
+	  input: {
+	    opacity: 0,
+	    appearance: 'none',
+	    position: 'absolute',
+	    'z-index': 1,
+	    width: '100%'
+	  },
+	  label: {
+	    position: 'relative'
 	  }
-	});
+	};
 
-/***/ },
+/***/ }),
 /* 1 */
-/***/ function(module, exports) {
-
-	module.exports = require("fs");
-
-/***/ },
-/* 2 */
-/***/ function(module, exports) {
-
-	module.exports = require("react-dropzone");
-
-/***/ },
-/* 3 */
-/***/ function(module, exports) {
-
-	module.exports = require("glamor");
-
-/***/ },
-/* 4 */
-/***/ function(module, exports) {
-
-	module.exports = require("request");
-
-/***/ },
-/* 5 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	module.exports = require("clipboardy");
 
-/***/ }
+/***/ })
 /******/ ])));
