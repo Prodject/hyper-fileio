@@ -1,6 +1,6 @@
 {
   "name": "hyper-fileio",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "Ephemeral file sharing direct from Hyper",
   "keywords": [
     "hyper.app",
